@@ -3,6 +3,7 @@
 //
 
 #include "config_parse.h"
+#include "logger.h"
 #include "port_config.h"
 #include <utility>
 #include <yaml-cpp/yaml.h>
@@ -10,7 +11,7 @@
 namespace fastdns
 {
 
-bool parse_config_file(const char *cfg_file_path)
+bool parse_config_file(const char *file_path)
 {
     YAML::Node config;
     try {
@@ -79,6 +80,16 @@ bool parse_config_file(const char *cfg_file_path)
         for(int i=0; i<tx_lcores.size(); ++i) {
             txlcores.push_back(tx_lcores[i].as<int>());
         }
+        // work-lcores
+        YAML::Node work_lcores = ports[i]["work-lcores"];
+        if(!work_lcores) {
+            logger->error("[fastdsn] ports[{}].work-lcores item not found,{}", i, file_path);
+            return false;
+        }
+        std::vector<int> worklcores;
+        for(int i=0; i<work_lcores.size(); ++i) {
+            worklcores.push_back(work_lcores[i].as<int>());
+        }
         // kni-lcores
         YAML::Node kni_lcores = ports[i]["kni-lcores"];
         if(!kni_lcores) {
@@ -89,7 +100,7 @@ bool parse_config_file(const char *cfg_file_path)
         for(int i=0; i<kni_lcores.size(); ++i) {
             knilcores.push_back(kni_lcores[i].as<int>());
         }
-        config_map[port_id] = port_config(port_id, queue_num, rxlcores, txlcores, knilcores);
+        config_map[port_id] = port_config(port_id, queue_num, rxlcores, txlcores, worklcores, knilcores);
     }
 }
 

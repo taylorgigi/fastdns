@@ -9,7 +9,7 @@ namespace fastdns
 {
 
 
-extern bool parse_config_file(const char *cfg_file_path);
+extern bool parse_config_file(const char *file_path);
 
 
 }

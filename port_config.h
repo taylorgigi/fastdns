@@ -6,7 +6,9 @@
 #define FASTDNS_PORT_CONFIG_H
 
 #include <boost/noncopyable.hpp>
+#include <memory>
 #include <unordered_map>
+#include <vector>
 
 namespace fastdns
 {
@@ -15,7 +17,7 @@ struct port_config
 {
 public:
     port_config();
-    port_config(int id, int queue_num, std::vector<int>& rx_lcores, std::vector<int>& tx_lcores, std::vector<int>& kni_lcores);
+    port_config(int id, int queue_num, std::vector<int>& rx_lcores, std::vector<int>& tx_lcores, std::vector<int>& work_lcores, std::vector<int>& kni_lcores);
     port_config(port_config&& pc);
     ~port_config();
 
@@ -25,6 +27,7 @@ public:
     int queue_num_;
     std::vector<int> rx_lcores_;
     std::vector<int> tx_lcores_;
+    std::vector<int> work_lcores_;
     std::vector<int> kni_lcores_;
 };
 
@@ -34,7 +37,7 @@ class PortConfigMap: public boost::noncopyable
 public:
     PortConfigMap();
     ~PortConfigMap();
-    auto& operator[](int port_id);
+    port_config& operator[](int port_id);
 private:
     std::unordered_map<int, std::unique_ptr<port_config>> config;
 };
