@@ -1,0 +1,13 @@
+%YAML 1.2
+---
+#log level:(trace, debug, info, warn, err, critical, off)
+spdlog:
+  level: "trace"
+ports:
+  - id: 0
+    queue: 1
+    rx-lcores: [0]
+    tx-lcores: [2]
+    work-lcores: [1]
+    kni-lcores: [3]
+...
