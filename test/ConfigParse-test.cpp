@@ -2,7 +2,7 @@
 // Created by taylor on 2020/9/10.
 //
 
-#include "../config_parse.h"
+#include "../ConfigParse.h"
 #include <cstdlib>
 #include <libgen.h>
 #include "../logger.h"
@@ -18,7 +18,9 @@ int main(int argc, char *argv[])
         std::cout << "Could not initialize logger" << std::endl;
         exit(-1);
     }
-    fastdns::parse_config_file(argv[1]);
+    if(!fastdns::ParseConfigFile(argv[1])) {
+        std::cout << "Could not parse config file " << argv[1] << std::endl;
+    }
 
     return 0;
 }

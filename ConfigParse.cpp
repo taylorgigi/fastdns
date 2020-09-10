@@ -2,16 +2,16 @@
 // Created by taylor on 2020/9/10.
 //
 
-#include "config_parse.h"
+#include "ConfigParse.h"
 #include "logger.h"
-#include "port_config.h"
+#include "PortConfig.h"
 #include <utility>
 #include <yaml-cpp/yaml.h>
 
 namespace fastdns
 {
 
-bool parse_config_file(const char *file_path)
+bool ParseConfigFile(const char *file_path)
 {
     YAML::Node config;
     try {
@@ -56,14 +56,14 @@ bool parse_config_file(const char *file_path)
         // queue-num
         YAML::Node queue = ports[i]["queue"];
         if(!queue) {
-            logger->error("[fastdsn] ports[{}].queue item not found,{}", i, file_path);
+            logger->error("[fastdsn] port{}.queue item not found,{}", i, file_path);
             return false;
         }
         int queue_num = queue.as<int>();
         // rx-lcores
         YAML::Node rx_lcores = ports[i]["rx-lcores"];
         if(!rx_lcores) {
-            logger->error("[fastdsn] ports[{}].rx-lcores item not found,{}", i, file_path);
+            logger->error("[fastdsn] port{}.rx-lcores item not found,{}", i, file_path);
             return false;
         }
         std::vector<int> rxlcores;
@@ -73,7 +73,7 @@ bool parse_config_file(const char *file_path)
         // tx-lcores
         YAML::Node tx_lcores = ports[i]["tx-lcores"];
         if(!tx_lcores) {
-            logger->error("[fastdsn] ports[{}].tx-lcores item not found,{}", i, file_path);
+            logger->error("[fastdsn] port{}.tx-lcores item not found,{}", i, file_path);
             return false;
         }
         std::vector<int> txlcores;
@@ -83,7 +83,7 @@ bool parse_config_file(const char *file_path)
         // work-lcores
         YAML::Node work_lcores = ports[i]["work-lcores"];
         if(!work_lcores) {
-            logger->error("[fastdsn] ports[{}].work-lcores item not found,{}", i, file_path);
+            logger->error("[fastdsn] port{}.work-lcores item not found,{}", i, file_path);
             return false;
         }
         std::vector<int> worklcores;
@@ -93,15 +93,26 @@ bool parse_config_file(const char *file_path)
         // kni-lcores
         YAML::Node kni_lcores = ports[i]["kni-lcores"];
         if(!kni_lcores) {
-            logger->error("[fastdsn] ports[{}].kni-lcores item not found,{}", i, file_path);
+            logger->error("[fastdsn] port{}.kni-lcores item not found,{}", i, file_path);
             return false;
         }
         std::vector<int> knilcores;
         for(int i=0; i<kni_lcores.size(); ++i) {
             knilcores.push_back(kni_lcores[i].as<int>());
         }
-        config_map[port_id] = port_config(port_id, queue_num, rxlcores, txlcores, worklcores, knilcores);
+        if(queue_num != rxlcores.size() || queue_num != txlcores.size() || queue_num != worklcores.size() || queue_num != knilcores.size()) {
+            logger->error("[fastdsn] port{} configs not match, no. of lcores must equal to no. of queues, queue:{} rx-lcores:{} tx-lcores:{} work-lcores:{} kni-lcores:{}",
+                    i,
+                    queue_num,
+                    rxlcores.size(),
+                    txlcores.size(),
+                    worklcores.size(),
+                    knilcores.size());
+            return false;
+        }
+        configs[port_id] = PortConfig(port_id, queue_num, rxlcores, txlcores, worklcores, knilcores);
     }
+    return true;
 }
 
 }

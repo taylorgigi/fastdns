@@ -3,11 +3,12 @@
 //
 
 #include <cstdlib>
+#include "ConfigParse.h"
 #include <getopt.h>
 #include "logger.h"
 #include <rte_eal.h>
 
-bool parse_args(int argc, char *argv[])
+bool ParseArgs(int argc, char *argv[])
 {
     int ret = 0;
     static struct option longopts[] = {
@@ -26,7 +27,7 @@ bool parse_args(int argc, char *argv[])
     }
     if(cfg_file.empty())
         return false;
-    return fastdns::parse_config_file(cfg_file.c_str());
+    return fastdns::ParseConfigFile(cfg_file.c_str());
 }
 
 int main(int argc, char *argv[])
@@ -42,8 +43,8 @@ int main(int argc, char *argv[])
     logger->info("Initialize EAL success");
     argc -= idx;
     argv += idx;
-    if(!parse_args(argc, argv)) {
-        rte_exit(EXIT_FAILURE, "Could not parse args\n");
+    if(!ParseArgs(argc, argv)) {
+        rte_exit(EXIT_FAILURE, "Could not parse args, see log file for error message\n");
     }
     return 0;
 }
